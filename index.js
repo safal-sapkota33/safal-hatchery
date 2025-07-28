@@ -46,7 +46,7 @@ app.get('/api/weight', (req, res) => {
 
 // Basic health check
 app.get('/', (req, res) => {
-  res.send('Weight Tracking Server is running');
+  res.send('Weight Tracking Server is running made by safal');
 });
 
 app.get('/sayhi', (req, res) => {

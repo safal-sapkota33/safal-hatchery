@@ -1,4 +1,3 @@
-// server.js
 const express = require('express');
 const bodyParser = require('body-parser');
 const cors = require('cors');
@@ -6,7 +5,13 @@ const cors = require('cors');
 const app = express();
 const PORT = process.env.PORT || 3000;
 
-// Middleware
+// Middleware to log all incoming requests
+app.use((req, res, next) => {
+  console.log(`[${new Date().toISOString()}] ${req.method} request to ${req.url} from ${req.ip}`);
+  next();
+});
+
+// Other middleware
 app.use(cors());
 app.use(bodyParser.json());
 
@@ -16,10 +21,12 @@ let weightData = [];
 // API endpoint to receive weight data
 app.post('/api/weight', (req, res) => {
   try {
+    console.log(`[${new Date().toISOString()}] POST /api/weight - Received body:`, req.body);
     const { weight } = req.body;
     const timestamp = new Date().toISOString();
     
     if (typeof weight !== 'number') {
+      console.log(`[${new Date().toISOString()}] POST /api/weight - Invalid weight data:`, weight);
       return res.status(400).json({ error: 'Invalid weight data' });
     }
 
@@ -31,27 +38,31 @@ app.post('/api/weight', (req, res) => {
       weightData = weightData.slice(-100);
     }
 
-    console.log(`Received weight: ${weight} kg at ${timestamp}`);
+    console.log(`[${new Date().toISOString()}] POST /api/weight - Stored weight: ${weight} kg at ${timestamp}`);
     res.status(200).json({ message: 'Weight data received', weight, timestamp });
   } catch (error) {
-    console.error('Error processing weight data:', error);
+    console.error(`[${new Date().toISOString()}] POST /api/weight - Error:`, error);
     res.status(500).json({ error: 'Internal server error' });
   }
 });
 
 // API endpoint to get all weight data
 app.get('/api/weight', (req, res) => {
+  console.log(`[${new Date().toISOString()}] GET /api/weight - Fetching all weight data`);
   res.status(200).json(weightData);
 });
 
 // Basic health check
 app.get('/', (req, res) => {
+  console.log(`[${new Date().toISOString()}] GET / - Health check requested`);
   res.send('Weight Tracking Server is running made by safal');
 });
 
 app.get('/sayhi', (req, res) => {
+  console.log(`[${new Date().toISOString()}] GET /sayhi - Say hi requested`);
   res.send('Hi safal');
 });
+
 app.listen(PORT, () => {
-  console.log(`Server running on port ${PORT}`);
+  console.log(`[${new Date().toISOString()}] Server started on port ${PORT}`);
 });
